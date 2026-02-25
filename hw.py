@@ -83,7 +83,67 @@ def read_next_question():
     question_index = question_index + 1
     return questions.pop(0).split("|")
 
+#pos = mouse pointer
+def on_mouse_down(pos):
+    index = 1
+    for box in answer_boxes:
+        #Check if mouse pointer clicked on answer box
+        if box.collidepoint(pos):
+            #Check if mouse pointer clicked on correct box
+            if index is int(question[5]):
+                correct_answer()
+            #Check if mouse pointer clicked on incorrect box
+            else:
+                game_over()
+        index = index + 1
+        #Check if mouse pointer clicked on skip box
+    if skip_box.collidepoint(pos):
+        skip_question()
 
+#If has correct answer
+def correct_answer():
+    global score, question, questions, time_left
+    #Increase score
+    score = score + 1
+    #If there are more questions left
+    if questions:
+        question = read_next_question()
+        time_left = 10
+    #No more questions
+    else:
+        game_over()
+
+#Wrong answer
+def game_over():
+    global question, time_left, is_game_over
+    #No more time
+    time_left = 0
+    is_game_over = True
+    #Display game over message on screen
+    message = f"Game Over!\nYou got {score} questions correct!"
+    question = [message, "-", "-", "-", "-", 5]
+
+#Skip question
+def skip_question():
+    global question, time_left
+    #More questions but not game over
+    if questions and not is_game_over:
+        question = read_next_question()
+        time_left = 10
+    #No more questions
+    else:
+        game_over()
+
+#Update timer
+def update_time_left():
+    global time_left
+    if time_left:
+        time_left = time_left - 1
+    else:
+        game_over()
+
+#Reduce timer every second
+clock.schedule_interval(update_time_left, 1)
 
 read_question_file()
 question = read_next_question()
